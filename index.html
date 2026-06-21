@@ -3,18 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>لوحة تحكم إشعارات مكتبة MYM</title>
-    <!-- استدعاء مكتبة EmailJS -->
+    <title>لوحة إرسال إشعارات المكتبة</title>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
     <style>
         body { font-family: 'Segoe UI', Tahoma, sans-serif; background-color: #f0f2f5; padding: 20px; }
         .container { max-width: 500px; margin: auto; background: white; padding: 25px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
         h2 { text-align: center; color: #2c3e50; }
-        input, textarea { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
-        .checkbox-group { margin: 15px 0; background: #f9f9f9; padding: 10px; border-radius: 8px; }
-        button { width: 100%; padding: 12px; background-color: #16a085; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 16px; font-weight: bold; }
+        label { display: block; margin-top: 15px; font-weight: bold; color: #34495e; }
+        input, textarea, select { width: 100%; padding: 12px; margin-top: 5px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
+        button { width: 100%; padding: 12px; background-color: #16a085; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 16px; font-weight: bold; margin-top: 20px; }
         button:hover { background-color: #138d75; }
-        label { display: block; margin-bottom: 5px; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -31,63 +29,62 @@
         <label>اسم القصة:</label>
         <input type="text" id="story_name" required>
 
-        <div class="checkbox-group">
-            <label>حالة الطلب:</label>
-            <select id="status_dropdown" required>
-              <option value="" disabled selected>اختر حالة الطلب...</option>
-              <option value="لم تتم">لم تتم</option>
-              <option value="تم القبول">تم القبول</option>
-              <option value="تم الرفض">تم الرفض</option>
-              <option value="تم فتح ملف طلبك.">تم فتح ملف طلبك</option>
-              <option value="تم مراجعة قصتك من قبل مسئول القسم.">تم مراجعة قصتك من قبل مسئول القسم</option>
-              <option value="تم مراجعة طلبك من قبل ادارة المكتبة.">تم مراجعة طلبك من قبل ادارة المكتبة</option>
-              <option value="تم رفع قصتك، شاهدها هنا: https://mym-apps.vercel.app/library/kidz">تم الرفع (رابط القصة)</option>
-          </select><br>
-        </div>
+        <label>حالة الطلب:</label>
+        <select id="status_dropdown" required>
+            <option value="" disabled selected>اختر حالة الطلب...</option>
+            <option value="لم تتم">لم تتم</option>
+            <option value="تم القبول">تم القبول</option>
+            <option value="تم الرفض">تم الرفض</option>
+            <option value="تم فتح ملف طلبك.">تم فتح ملف طلبك</option>
+            <option value="تم مراجعة قصتك من قبل مسئول القسم.">تم مراجعة قصتك من قبل مسئول القسم</option>
+            <option value="تم مراجعة طلبك من قبل ادارة المكتبة.">تم مراجعة طلبك من قبل ادارة المكتبة</option>
+            <option value="تم رفع قصتك، شاهدها هنا: https://mym-apps.vercel.app/library/kidz">تم الرفع (رابط القصة)</option>
+        </select>
 
         <label>ملاحظات إضافية:</label>
-        <textarea id="notes" rows="4"></textarea>
+        <textarea id="notes" rows="4" placeholder="اكتب ملاحظاتك هنا..."></textarea>
         
         <button type="submit" id="sendBtn">إرسال الإشعار</button>
     </form>
 </div>
 
 <script>
-    // تهيئة EmailJS
-    (function(){ emailjs.init("bnfYhVLurvImtFQ1v"); })(); // ضع مفتاحك هنا
+    // 1. تهيئة EmailJS (ضع مفتاحك العام هنا)
+    (function(){ 
+        emailjs.init("bnfYhVLurvImtFQ1v"); 
+    })();
 
+    // 2. معالجة الإرسال
     document.getElementById('notificationForm').addEventListener('submit', function(event) {
         event.preventDefault();
+        
         const btn = document.getElementById('sendBtn');
         btn.innerText = "جاري الإرسال...";
+        btn.disabled = true;
 
-        // تجميع الحالات
-        let statusList = [];
-        document.querySelectorAll('.status:checked').forEach(cb => {
-            statusList.push(`<li>${cb.value}</li>`);
-        });
-
-        // استبدل جزء تجميع الحالات داخل دالة الـ submit بهذا الكود:
-        const selectedStatus = document.getElementById('status_dropdown').value;
-        const statusUpdatesHTML = `<li>${selectedStatus}</li>`;
-
+        const selectedValue = document.getElementById('status_dropdown').value;
+        
+        // إعداد المعاملات التي ستذهب لـ EmailJS
         const templateParams = {
             user_email: document.getElementById('user_email').value,
             kid_name: document.getElementById('kid_name').value,
             story_name: document.getElementById('story_name').value,
-            status_updates: statusUpdatesHTML, // الآن ترسل الحالة المختارة فقط
+            status_updates: `<li>${selectedValue}</li>`,
             notes: document.getElementById('notes').value
         };
 
-        // إرسال الإيميل
+        // 3. الإرسال (ضع الـ Service والـ Template ID هنا)
         emailjs.send('service_oqjq19v', 'template_kf61qrj', templateParams)
             .then(() => {
                 alert('تم إرسال الإشعار بنجاح!');
-                btn.innerText = "إرسال الإشعار";
                 document.getElementById('notificationForm').reset();
             }, (err) => {
-                alert('حدث خطأ: ' + JSON.stringify(err));
+                console.error("Error:", err);
+                alert('فشل الإرسال. تحقق من الـ Console.');
+            })
+            .finally(() => {
                 btn.innerText = "إرسال الإشعار";
+                btn.disabled = false;
             });
     });
 </script>
