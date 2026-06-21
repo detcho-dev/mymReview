@@ -54,7 +54,7 @@
 
 <script>
     // تهيئة EmailJS
-    (function(){ emailjs.init("YOUR_PUBLIC_KEY"); })(); // ضع مفتاحك هنا
+    (function(){ emailjs.init("bnfYhVLurvImtFQ1v"); })(); // ضع مفتاحك هنا
 
     document.getElementById('notificationForm').addEventListener('submit', function(event) {
         event.preventDefault();
@@ -80,7 +80,7 @@
         };
 
         // إرسال الإيميل
-        emailjs.send('YOUR_SERVICE_ID', 'YOUR_TEMPLATE_ID', templateParams)
+        emailjs.send('service_oqjq19v', 'template_kf61qrj', templateParams)
             .then(() => {
                 alert('تم إرسال الإشعار بنجاح!');
                 btn.innerText = "إرسال الإشعار";
